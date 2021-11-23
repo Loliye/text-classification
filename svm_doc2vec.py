@@ -1,5 +1,8 @@
 #coding:utf-8
 import sys
+from sklearn.svm import SVC
+import gensim
+from sklearn import metrics
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -19,7 +22,6 @@ def train_d2v_model():
     fout = open('all_contents.txt','w')
     fout.write('\n'.join(all_docs))
     fout.close()
-    import gensim
     sentences = gensim.models.doc2vec.TaggedLineDocument('all_contents.txt')
     model = gensim.models.Doc2Vec(sentences, size=200, window=5, min_count=5)
     model.save('doc2vec.model')
@@ -28,9 +30,8 @@ def train_d2v_model():
 
 if __name__ == '__main__':
     print '(1) training doc2vec model...'
-    # train_d2v_model()
+    train_d2v_model()
     print '(2) load doc2vec model...'
-    import gensim
     model = gensim.models.Doc2Vec.load('doc2vec.model')
     x_train = []
     x_test = []
@@ -45,8 +46,7 @@ if __name__ == '__main__':
     print 'test doc shape: '+str(len(x_test))+' , '+str(len(x_test[0]))
 
     print '(3) SVM...'
-    from sklearn.svm import SVC   
-    svclf = SVC(kernel = 'rbf') 
+    svclf = SVC(kernel = 'rbf')
     svclf.fit(x_train,y_train)  
     preds = svclf.predict(x_test);  
     num = 0
@@ -55,6 +55,7 @@ if __name__ == '__main__':
         if int(pred) == int(y_test[i]):
             num += 1
     print 'precision_score:' + str(float(num) / len(preds))
+    print metrics.classification_report(y_test,preds)
 
 
 

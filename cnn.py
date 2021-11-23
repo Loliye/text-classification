@@ -1,6 +1,15 @@
 #coding:utf-8
 import sys
 import keras
+from keras.preprocessing.text import Tokenizer
+from keras.preprocessing.sequence import pad_sequences
+from keras.utils import to_categorical
+from keras.layers import Dense, Input, Flatten, Dropout
+from keras.layers import Conv1D, MaxPooling1D, Embedding, GlobalMaxPooling1D, Activation
+from keras.models import Sequential
+import tensorflow as tf
+import numpy as np
+
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -22,10 +31,6 @@ all_labels = train_labels + test_labels
 
 
 print '(2) doc to var...'
-from keras.preprocessing.text import Tokenizer
-from keras.preprocessing.sequence import pad_sequences
-from keras.utils import to_categorical
-import numpy as np
 
 tokenizer = Tokenizer()
 tokenizer.fit_on_texts(all_texts)
@@ -54,9 +59,6 @@ print 'test docs: '+str(len(x_test))
 
 
 print '(5) training model...'
-from keras.layers import Dense, Input, Flatten, Dropout
-from keras.layers import Conv1D, MaxPooling1D, Embedding, GlobalMaxPooling1D
-from keras.models import Sequential
 
 model = Sequential()
 model.add(Embedding(len(word_index) + 1, EMBEDDING_DIM, input_length=MAX_SEQUENCE_LENGTH))
@@ -65,9 +67,10 @@ model.add(Conv1D(250, 3, padding='valid', activation='relu', strides=1))
 model.add(MaxPooling1D(3))
 model.add(Flatten())
 model.add(Dense(EMBEDDING_DIM, activation='relu'))
+model.add(Activation(tf.nn.softmax))
 model.add(Dense(labels.shape[1], activation='softmax'))
 model.summary()
-#plot_model(model, to_file='model.png',show_shapes=True)
+# plot_model(model, to_file='model.png',show_shapes=True)
 
 model.compile(loss='categorical_crossentropy',
               optimizer='rmsprop',

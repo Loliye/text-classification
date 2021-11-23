@@ -1,9 +1,13 @@
 #coding:utf-8
 import sys
+import gensim
+from sklearn.svm import SVC
+from sklearn import metrics
+import numpy as np
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-VECTOR_DIR = 'vectors.bin'
+VECTOR_DIR = 'baike.vectors.bin'
 
 MAX_SEQUENCE_LENGTH = 100
 EMBEDDING_DIM = 200
@@ -17,8 +21,6 @@ test_docs = open('test_contents.txt').read().split('\n')
 test_labels = open('test_labels.txt').read().split('\n')
 
 print '(2) doc to var...'
-import gensim
-import numpy as np
 w2v_model = gensim.models.KeyedVectors.load_word2vec_format(VECTOR_DIR, binary=True)
 x_train = []
 x_test = []
@@ -50,10 +52,9 @@ y_train = train_labels
 y_test = test_labels
 
 print '(3) SVM...'
-from sklearn.svm import SVC   
-svclf = SVC(kernel = 'linear') 
+svclf = SVC(kernel = 'linear')
 svclf.fit(x_train,y_train)  
-preds = svclf.predict(x_test);  
+preds = svclf.predict(x_test)
 num = 0
 preds = preds.tolist()
 for i,pred in enumerate(preds):
@@ -61,12 +62,4 @@ for i,pred in enumerate(preds):
         num += 1
 print 'precision_score:' + str(float(num) / len(preds))
 
-
-
-
-
-        
-
-
-
-
+print metrics.classification_report(y_test, preds)
